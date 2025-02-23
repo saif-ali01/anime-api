@@ -1,7 +1,6 @@
 package com.anime.api.controller;
 
-import com.anime.api.model.AnimeModel;
-import com.anime.api.model.AnimeModel.AnimeStatus;
+import com.anime.api.model.*;
 import com.anime.api.service.AnimeService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -40,8 +39,32 @@ public class AnimeController {
         return anime.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{id}/episodes")
+    public ResponseEntity<List<EpisodeModel>> getEpisodesForAnime(@PathVariable String id) {
+        List<EpisodeModel> episodes = animeService.getEpisodesForAnime(id);
+        return ResponseEntity.ok(episodes);
+    }
+
+    @GetMapping("/{id}/audio")
+    public ResponseEntity<List<AudioModel>> getAudioForAnime(@PathVariable String id) {
+        List<AudioModel> audioList = animeService.getAudioForAnime(id);
+        return ResponseEntity.ok(audioList);
+    }
+
+    @GetMapping("/{id}/clips")
+    public ResponseEntity<List<ClipModel>> getClipsForAnime(@PathVariable String id) {
+        List<ClipModel> clips = animeService.getClipsForAnime(id);
+        return ResponseEntity.ok(clips);
+    }
+
+    @GetMapping("/{id}/wallpapers")
+    public ResponseEntity<List<WallpaperModel>> getWallpapersForAnime(@PathVariable String id) {
+        List<WallpaperModel> wallpapers = animeService.getWallpapersForAnime(id);
+        return ResponseEntity.ok(wallpapers);
+    }
+
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<AnimeModel>> getAnimesByStatus(@PathVariable AnimeStatus status) {
+    public ResponseEntity<List<AnimeModel>> getAnimesByStatus(@PathVariable AnimeModel.AnimeStatus status) {
         List<AnimeModel> animes = animeService.getAnimesByStatus(status);
         return ResponseEntity.ok(animes);
     }
@@ -64,11 +87,10 @@ public class AnimeController {
         return ResponseEntity.ok(animes);
     }
 
-    // Unified search endpoint with query parameters
     @GetMapping("/search")
     public ResponseEntity<Page<AnimeModel>> searchAnimes(
             @RequestParam(required = false) String genre,
-            @RequestParam(required = false) AnimeStatus status,
+            @RequestParam(required = false) AnimeModel.AnimeStatus status,
             @RequestParam(required = false) Double minRating,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {

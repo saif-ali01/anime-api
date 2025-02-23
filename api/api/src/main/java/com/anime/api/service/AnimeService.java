@@ -1,8 +1,6 @@
 package com.anime.api.service;
 
-import com.anime.api.model.AnimeModel;
-import com.anime.api.model.EpisodeModel;
-import com.anime.api.model.AnimeModel.AnimeStatus;
+import com.anime.api.model.*;
 import com.anime.api.repository.AnimeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,11 +13,19 @@ import java.util.Optional;
 public class AnimeService {
 
     private final AnimeRepository animeRepository;
-    private final EpisodeService episodeService; // Inject EpisodeService
+    private final EpisodeService episodeService;
+    private final AudioService audioService;
+    private final ClipService clipService;       // Required for getClipsForAnime
+    private final WallpaperService wallpaperService;
 
-    public AnimeService(AnimeRepository animeRepository, EpisodeService episodeService) {
+    public AnimeService(AnimeRepository animeRepository, EpisodeService episodeService, 
+                        AudioService audioService, ClipService clipService, 
+                        WallpaperService wallpaperService) {
         this.animeRepository = animeRepository;
         this.episodeService = episodeService;
+        this.audioService = audioService;
+        this.clipService = clipService;
+        this.wallpaperService = wallpaperService;
     }
 
     public AnimeModel addAnime(AnimeModel anime) {
@@ -35,7 +41,7 @@ public class AnimeService {
         return animeRepository.findById(id);
     }
 
-    public List<AnimeModel> getAnimesByStatus(AnimeStatus status) {
+    public List<AnimeModel> getAnimesByStatus(AnimeModel.AnimeStatus status) {
         return animeRepository.findByStatus(status);
     }
 
@@ -51,14 +57,26 @@ public class AnimeService {
         return animeRepository.findByTagsContaining(tag);
     }
 
-    public Page<AnimeModel> searchAnimes(String genre, AnimeStatus status, Double minRating, int page, int size) {
+    public Page<AnimeModel> searchAnimes(String genre, AnimeModel.AnimeStatus status, Double minRating, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return animeRepository.findByGenresAndStatusAndRatingGreaterThanEqual(genre, status, minRating, pageable);
     }
 
-    // New method to get episodes for an anime
     public List<EpisodeModel> getEpisodesForAnime(String animeId) {
         return episodeService.getEpisodesByAnime(animeId);
+    }
+
+    public List<AudioModel> getAudioForAnime(String animeId) {
+        return audioService.getAudioByAnime(animeId);
+    }
+
+    // Added method to fix the error
+    public List<ClipModel> getClipsForAnime(String animeId) {
+        return clipService.getClipsByAnime(animeId);
+    }
+
+    public List<WallpaperModel> getWallpapersForAnime(String animeId) {
+        return wallpaperService.getWallpapersByAnime(animeId);
     }
 
     public Optional<AnimeModel> updateAnime(String id, AnimeModel updatedAnime) {
@@ -83,9 +101,14 @@ public class AnimeService {
     }
 
     public void deleteAnime(String id) {
-        // Optionally delete associated episodes
         List<EpisodeModel> episodes = episodeService.getEpisodesByAnime(id);
         episodes.forEach(episode -> episodeService.deleteEpisode(episode.getId()));
+        List<AudioModel> audioList = audioService.getAudioByAnime(id);
+        audioList.forEach(audio -> audioService.deleteAudio(audio.getId()));
+        List<ClipModel> clips = clipService.getClipsByAnime(id);
+        clips.forEach(clip -> clipService.deleteClip(clip.getId()));
+        List<WallpaperModel> wallpapers = wallpaperService.getWallpapersByAnime(id);
+        wallpapers.forEach(wallpaper -> wallpaperService.deleteWallpaper(wallpaper.getId()));
         animeRepository.deleteById(id);
     }
 }

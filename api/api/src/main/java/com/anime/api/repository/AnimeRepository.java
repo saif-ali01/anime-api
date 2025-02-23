@@ -9,7 +9,8 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 
 public interface AnimeRepository extends MongoRepository<AnimeModel, String> {
-    Page<AnimeModel> findAll(Pageable pageable);
+    @SuppressWarnings("null")
+    Page<AnimeModel> findAll( Pageable pageable);
 
     List<AnimeModel> findByStatus(AnimeStatus status);
 
