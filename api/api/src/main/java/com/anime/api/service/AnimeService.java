@@ -2,6 +2,8 @@ package com.anime.api.service;
 
 import com.anime.api.model.*;
 import com.anime.api.repository.AnimeRepository;
+
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,15 +20,15 @@ public class AnimeService {
     private final ClipService clipService;       // Required for getClipsForAnime
     private final WallpaperService wallpaperService;
 
-    public AnimeService(AnimeRepository animeRepository, EpisodeService episodeService, 
-                        AudioService audioService, ClipService clipService, 
-                        WallpaperService wallpaperService) {
-        this.animeRepository = animeRepository;
-        this.episodeService = episodeService;
-        this.audioService = audioService;
-        this.clipService = clipService;
-        this.wallpaperService = wallpaperService;
-    }
+    public AnimeService(AnimeRepository animeRepository, @Lazy EpisodeService episodeService, 
+    @Lazy AudioService audioService, @Lazy ClipService clipService, 
+    @Lazy WallpaperService wallpaperService) {
+this.animeRepository = animeRepository;
+this.episodeService = episodeService;
+this.audioService = audioService;
+this.clipService = clipService;
+this.wallpaperService = wallpaperService;
+}
 
     public AnimeModel addAnime(AnimeModel anime) {
         return animeRepository.save(anime);

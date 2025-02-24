@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: spring-boot-api
+    env: docker
+    buildCommand: ./mvnw clean package
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+    plan: free
